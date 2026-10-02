@@ -49,6 +49,10 @@ SIM_TARGETS: Dict[str, str] = {
     "rp2040": "qemu_cortex_m3",
     "raspi-pico": "qemu_cortex_m3",
     "qemu_cortex_m3": "qemu_cortex_m3",
+    # Cortex-M33 with the FPU (QEMU mps2-an505). Only by name: it runs the
+    # FPU half of the context switch, but it is not a stand-in for any one
+    # board, so no board maps to it.
+    "qemu_cortex_m33": "qemu_cortex_m33",
 }
 
 
