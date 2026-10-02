@@ -11,6 +11,7 @@ extracted from the wrong archive carries the wrong marker.
 
 import hashlib
 import gzip
+import http.client
 import io
 import tarfile
 
@@ -419,6 +420,32 @@ def test_truncated_download_leaves_no_cache_entry(tmp_path, monkeypatch):
 
     assert fetcher.is_downloaded(recipe) is False
     # No .part litter either.
+    assert not list((tmp_path / "dl").rglob("*.part"))
+
+
+def test_incomplete_read_is_a_fetch_error(tmp_path, monkeypatch):
+    """IncompleteRead is an HTTPException, not an OSError; the CLI only catches FetchError."""
+    class _ShortBodyResponse(io.BytesIO):
+        def read(self, size=-1):
+            raise http.client.IncompleteRead(b"partial", 100)
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *exc_info):
+            return False
+
+    monkeypatch.setattr(
+        "ebuild.packages.fetcher.urllib.request.urlopen",
+        lambda request, timeout=None: _ShortBodyResponse(b""),
+    )
+    fetcher = PackageFetcher(tmp_path / "dl")
+    recipe = make_recipe("littlefs")
+
+    with pytest.raises(FetchError, match="Failed to download"):
+        fetcher.fetch(recipe, tmp_path / "src")
+
+    assert fetcher.is_downloaded(recipe) is False
     assert not list((tmp_path / "dl").rglob("*.part"))
 
 

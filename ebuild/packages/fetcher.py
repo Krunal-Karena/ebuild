@@ -16,6 +16,7 @@ never leaves a truncated archive behind to satisfy the cache.
 from __future__ import annotations
 
 import hashlib
+import http.client
 import os
 import tarfile
 import urllib.error
@@ -159,7 +160,7 @@ class PackageFetcher:
                                 )
                             f.write(chunk)
                 os.replace(partial_path, archive_path)
-            except (urllib.error.URLError, OSError) as e:
+            except (urllib.error.URLError, http.client.HTTPException, OSError, ValueError) as e:
                 raise FetchError(
                     f"Failed to download {recipe.name} v{recipe.version} "
                     f"from {recipe.url}: {e}"
