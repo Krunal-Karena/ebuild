@@ -25,6 +25,9 @@
 - Shared-library Ninja link commands now preserve toolchain `extra_ldflags`
   and `sysroot`, before target linker flags and package library paths, matching
   executable targets. Previously those toolchain settings were silently ignored.
+- **Dependency repositories now respect their remote default branch when no branch is configured.**
+  `DepsManager.setup()` no longer falls back to `master`; with no configured branch it omits
+  `--branch` so git checks out the remote's default (e.g. `main`) (`ebuild/deps/manager.py`).
 - **Ninja shared-library sources compile as position-independent code.**
   Shared-library targets now default to `-fPIC`, while preserving an explicit
   PIC policy supplied by the target or toolchain
