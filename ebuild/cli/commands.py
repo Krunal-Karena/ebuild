@@ -2421,7 +2421,7 @@ def repos_status(log: Logger) -> None:
     for info in entries:
         log.step(f"{info['name']}")
         log.info(f"  URL:    {info['url']}")
-        log.info(f"  Branch: {info['branch']}")
+        log.info(f"  Branch: {info['branch'] or '(remote default)'}")
         if info.get("config_path"):
             log.info(f"  Linked: {info['config_path']}")
         if info.get("cached"):

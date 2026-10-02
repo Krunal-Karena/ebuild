@@ -22,6 +22,9 @@
   `cjson` (v1.7.18), `nanopb` (v0.4.9.1), `lvgl` (v9.2.2), `tinyusb` (v0.18.0), and `unity` (v2.6.1).
 
 ### Fixed
+- **Dependency repositories now respect their remote default branch when no branch is configured.**
+  `DepsManager.setup()` no longer falls back to `master`; with no configured branch it omits
+  `--branch` so git checks out the remote's default (e.g. `main`) (`ebuild/deps/manager.py`).
 - **Ninja shared-library sources compile as position-independent code.**
   Shared-library targets now default to `-fPIC`, while preserving an explicit
   PIC policy supplied by the target or toolchain
