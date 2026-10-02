@@ -40,7 +40,7 @@ Observed in the source tree:
   (`ebuild new`, `ebuild generate-project`, `ebuild generate-board`,
   `ebuild generate-boot`).
 - **Layers & recipes** — reusable board/OS composition under `layers/` and
-  `recipes/`.
+  `ebuild/recipes/`.
 
 ## What's inside
 
@@ -49,8 +49,8 @@ Observed in the source tree:
 | `ebuild/` | The Python package: `cli/`, `build/`, `core/`, `system/`, `firmware/`, `deps/`, `packages/`, `plugins/`, `eos_ai/` |
 | `core/` | Native support components (e.g. `eboot/`) |
 | `examples/` | `hello_world`, `linux_image`, `multi_target`, `rtos_firmware`, `cortex_r5_safety`, `eradar360`, `with_packages` |
-| `templates/` | Project/board templates used by the generators |
-| `recipes/`, `layers/` | Reusable build recipes and board/OS layers |
+| `ebuild/templates/` | Project templates used by `ebuild new` / `ebuild init` (shipped in the wheel) |
+| `ebuild/recipes/`, `layers/` | Reusable build recipes and board/OS layers |
 | `hardware/` | Board/hardware definitions |
 | `sdk/` | SDK generation support |
 | `tools/` | Helper scripts |
@@ -60,6 +60,9 @@ Observed in the source tree:
 
 Requires Python 3.8+.
 
+Building a `static_library` target also invokes that Python interpreter at
+build time: the generated Ninja `ar_rule` runs a small helper to recreate the
+archive so removed object members cannot linger.
 ```bash
 pip install -e .        # from the repo root
 # or:
@@ -68,8 +71,9 @@ pip install -e .        # from the repo root
 ```
 
 Runtime dependencies (`click`, `pyyaml`, `ninja`) are installed automatically.
-Note the `ninja` **pip package** is required — a system `ninja` binary alone is
-not enough, because ebuild invokes `python -m ninja`.
+ebuild prefers a `ninja` binary on PATH and falls back to `python -m ninja`
+if none is present, so a system ninja install is enough. The pip `ninja`
+package is the fallback when no binary is on PATH.
 
 ## Usage
 
