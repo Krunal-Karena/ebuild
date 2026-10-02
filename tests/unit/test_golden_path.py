@@ -172,3 +172,46 @@ def test_platforms_list_reads_eosim_registry():
     assert r.exit_code == 0, r.output
     names = r.output.split()
     assert "stm32f4" in names and len(names) >= 100
+
+
+def test_qemu_cortex_m33_is_a_named_target_but_no_board_maps_to_it():
+    # A name the developer can ask for. Not a silent stand-in for a board.
+    assert golden_path.SIM_TARGETS["qemu_cortex_m33"] == "qemu_cortex_m33"
+    assert [b for b, t in golden_path.SIM_TARGETS.items() if t == "qemu_cortex_m33"] == ["qemu_cortex_m33"]
+
+
+def test_sim_on_qemu_cortex_m33_runs_the_fpu_context_test(tmp_path):
+    """End to end: ebuild sim builds eos for mps2-an505 and the guest exits 0.
+
+    Needs arm-none-eabi-gcc, qemu-system-arm and an eos checkout with
+    sim/qemu_cortex_m33 (EBUILD_EOS_PATH, or ~/.ebuild/repos/eos). Skipped,
+    with the reason, when any of them is missing.
+    """
+    import os
+    import shutil
+
+    for tool in ("arm-none-eabi-gcc", "qemu-system-arm"):
+        if not shutil.which(tool):
+            pytest.skip(f"{tool} not on PATH")
+    eos = Path(os.environ.get("EBUILD_EOS_PATH", Path.home() / ".ebuild" / "repos" / "eos"))
+    test_src = eos / "sim" / "qemu_cortex_m33" / "fpu_context_test.c"
+    if not test_src.is_file():
+        pytest.skip(f"{test_src} not found (eos predates the qemu_cortex_m33 target)")
+    # A real project, made the way the guide makes one, with its main.c
+    # replaced by eos's FPU context test.
+    r = _invoke_in(tmp_path, ["init", "fpu", "--template", "rtos", "--target", "stm32f4"])
+    assert r.exit_code == 0, r.output
+    project = tmp_path / "fpu"
+    shutil.copy(test_src, project / "src" / "main.c")
+    old = os.environ.get("EBUILD_EOS_PATH")
+    os.environ["EBUILD_EOS_PATH"] = str(eos)
+    try:
+        r = _invoke_in(project, ["sim", "--platform", "qemu_cortex_m33",
+                                 "--expect", "FPU CONTEXT TEST PASSED", "--timeout", "60"])
+    finally:
+        if old is None:
+            os.environ.pop("EBUILD_EOS_PATH", None)
+        else:
+            os.environ["EBUILD_EOS_PATH"] = old
+    assert r.exit_code == 0, r.output
+    assert "0 corrupted" in r.output
