@@ -39,6 +39,9 @@
   naming the missing archive; a cached archive still extracts offline, so
   air-gapped rebuilds work from a warmed cache
   (`ebuild/packages/fetcher.py`).
+- Shared-library Ninja link commands now preserve toolchain `extra_ldflags`
+  and `sysroot`, before target linker flags and package library paths, matching
+  executable targets. Previously those toolchain settings were silently ignored.
 - **Dependency repositories now respect their remote default branch when no branch is configured.**
   `DepsManager.setup()` no longer falls back to `master`; with no configured branch it omits
   `--branch` so git checks out the remote's default (e.g. `main`) (`ebuild/deps/manager.py`).
