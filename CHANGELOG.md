@@ -39,6 +39,9 @@
   naming the missing archive; a cached archive still extracts offline, so
   air-gapped rebuilds work from a warmed cache
   (`ebuild/packages/fetcher.py`).
+- **Dependency repositories now respect their remote default branch when no branch is configured.**
+  `DepsManager.setup()` no longer falls back to `master`; with no configured branch it omits
+  `--branch` so git checks out the remote's default (e.g. `main`) (`ebuild/deps/manager.py`).
 - **Ninja shared-library sources compile as position-independent code.**
   Shared-library targets now default to `-fPIC`, while preserving an explicit
   PIC policy supplied by the target or toolchain
