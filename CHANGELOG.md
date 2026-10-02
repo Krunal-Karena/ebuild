@@ -22,6 +22,9 @@
   `cjson` (v1.7.18), `nanopb` (v0.4.9.1), `lvgl` (v9.2.2), `tinyusb` (v0.18.0), and `unity` (v2.6.1).
 
 ### Fixed
+- Shared-library Ninja link commands now preserve toolchain `extra_ldflags`
+  and `sysroot`, before target linker flags and package library paths, matching
+  executable targets. Previously those toolchain settings were silently ignored.
 - **Dependency repositories now respect their remote default branch when no branch is configured.**
   `DepsManager.setup()` no longer falls back to `master`; with no configured branch it omits
   `--branch` so git checks out the remote's default (e.g. `main`) (`ebuild/deps/manager.py`).
